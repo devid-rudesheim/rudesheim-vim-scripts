@@ -214,6 +214,28 @@ function g:Rudesheim.FileLocator()
 	return l:object
 endfunction
 
+let g:Rudesheim._.this_plugin_file = g:Rudesheim.String( expand( '<sfile>:p' ) ).AsFilePath()
+
+function g:Rudesheim.Plugins()
+	let l:object = self.Object()
+
+	function! l:object.This()
+		let l:object = self.RH().Object()
+
+		function l:object.Edit()
+			tabe `=self._.this_plugin_file.AsString().AsVimValue()`
+		endfunction
+
+		function l:object.Reload()
+			source `=self._.this_plugin_file.AsString().AsVimValue()`
+		endfunction
+
+		return l:object
+	endfunction
+
+	return l:object
+endfunction
+
 if !exists( 'g:RH' )
 	let g:RH = g:Rudesheim
 endif
