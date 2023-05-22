@@ -13,33 +13,35 @@ function g:Rudesheim.AsString()
 	return self.RH().String( string( self ) )
 endfunction
 
-function g:Rudesheim.AsVimString()
-	return self.AsVimString()
-endfunction
-
 function g:Rudesheim.Object()
 	return deepcopy( self )
 endfunction
 
 let g:Rudesheim = g:Rudesheim.Object()
 
+function g:Rudesheim.Primitive( vim_value )
+        let l:object = self.Object()
+        let l:object._.value = a:vim_value
+
+        function l:object.AsVimValue()
+                return self._.value
+        endfunction
+
+        return l:object
+endfunction
+
 function g:Rudesheim.Number( vim_value )
-	let l:object = self.Object()
-	let l:object._.value = a:vim_value
+        let l:object = self.Primitive( a:vim_value )
 
-	function! g:Rudesheim.AsString()
-		return self.RH().String( string( self._.value ) )
-	endfunction
+        function! l:object.AsString()
+                return self.RH().String( string( self._.value ) )
+        endfunction
 
-	return l:object
+        return l:object
 endfunction
 
 function g:Rudesheim.Integer( vim_value )
 	let l:object = self.Number( a:vim_value )
-
-	function! l:object.AsVimInteger()
-		return self._.value
-	endfunction
 
 	function! l:object.AsInteger()
 		return self
@@ -55,10 +57,6 @@ endfunction
 function g:Rudesheim.Float( vim_value )
 	let l:object = self.Number( a:vim_value )
 
-	function! l:object.AsVimFloat()
-		return self._.value
-	endfunction
-
 	function! l:object.AsInteger()
 		return self.RH().Integer( float2nr( self._.value ) )
 	endfunction
@@ -71,8 +69,7 @@ function g:Rudesheim.Float( vim_value )
 endfunction
 
 function g:Rudesheim.String( vim_value )
-	let l:object = self.Object()
-	let l:object._.value = a:vim_value
+        let l:object = self.Primitive( a:vim_value )
 
 	function! l:object.AsVimString()
 		return self._.value
@@ -138,7 +135,7 @@ function g:Rudesheim.FilePath( file_path_as_string )
 	let l:object._.file_path = a:file_path_as_string.AsString()
 
 	function l:object.Name()
-		return self.RH().String( fnamemodify( self._.file_path.AsVimString(), ':p:t' ) )
+		return self.RH().String( fnamemodify( self._.file_path.AsVimValue(), ':p:t' ) )
 	endfunction
 
 	function l:object.RelativeString()
@@ -146,11 +143,11 @@ function g:Rudesheim.FilePath( file_path_as_string )
 	endfunction
 
 	function l:object.FullString()
-		return self.RH().String( fnamemodify( self._.file_path.AsVimString(), ':p' ) )
+		return self.RH().String( fnamemodify( self._.file_path.AsVimValue(), ':p' ) )
 	endfunction
 
 	function l:object.ParentFilePath()
-		return self.RH().String( fnamemodify( self._.file_path.AsVimString(), ':h' ) ).AsFilePath()
+		return self.RH().String( fnamemodify( self._.file_path.AsVimValue(), ':h' ) ).AsFilePath()
 	endfunction
 
 	function! l:object.AsString()
@@ -183,7 +180,7 @@ function g:Rudesheim.This()
 			endfunction
 
 			function! l:object.Set( value_as_string )
-				return self.RH().String( setline( self._.vim_row, a:value_as_string.AsString().AsVimString() ) )
+				return self.RH().String( setline( self._.vim_row, a:value_as_string.AsString().AsVimValue() ) )
 			endfunction
 
 			return l:object
@@ -197,7 +194,7 @@ function g:Rudesheim.This()
 	endfunction
 
 	function l:object.BufferLine( row_as_integer )
-		return self.Vim().BufferLine( a:row_as_integer.AsInteger().AsVimInteger() )
+		return self.Vim().BufferLine( a:row_as_integer.AsInteger().AsVimValue() )
 	endfunction
 
 	return l:object
@@ -222,6 +219,6 @@ if !exists( 'g:RH' )
 endif
 
 if !exists( ':RHEcho' )
-	command -nargs=1 RHEcho echo <args>.AsString().AsVimString()
+	command -nargs=1 RHEcho echo <args>.AsString().AsVimValue()
 endif
 
