@@ -54,6 +54,9 @@ function g:Rudesheim.Integer( vim_value )
 	return l:object
 endfunction
 
+let g:Rudesheim.I = g:Rudesheim.Integer
+
+
 function g:Rudesheim.Float( vim_value )
 	let l:object = self.Number( a:vim_value )
 
@@ -67,6 +70,9 @@ function g:Rudesheim.Float( vim_value )
 
 	return l:object
 endfunction
+
+let g:Rudesheim.F = g:Rudesheim.Float
+
 
 function g:Rudesheim.Collection( vim_value )
         let l:object = self.Primitive( a:vim_value )
@@ -185,6 +191,9 @@ function g:Rudesheim.List( vim_value )
         return l:object
 endfunction
 
+let g:Rudesheim.L = g:Rudesheim.List
+
+
 function g:Rudesheim.String( vim_value )
         let l:object = self.Collection( a:vim_value )
 
@@ -218,6 +227,9 @@ function g:Rudesheim.String( vim_value )
 
 	return l:object
 endfunction
+
+let g:Rudesheim.S = g:Rudesheim.String
+
 
 function g:Rudesheim.Zero()
 	return self.Integer( 0 )
