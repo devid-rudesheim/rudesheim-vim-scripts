@@ -81,6 +81,10 @@ function g:Rudesheim.Collection( vim_value )
 		return self.RH().Integer( len( self.AsVimValue() ) )
 	endfunction
 
+	function! l:object.IsEmpty()
+		return 0 == self.Size().AsVimValue()
+	endfunction
+
 	function! l:object.Species()
 		return self.RH().List( [] )
 	endfunction
@@ -260,8 +264,14 @@ function g:Rudesheim.SixTeen()
 endfunction
 
 function g:Rudesheim.FilePath( file_path_as_string )
+
+	if a:file_path_as_string.IsEmpty()
+		throw "FilePathIsEmpty"
+	endif
+
 	let l:object = self.Object()
 	let l:object._.file_path = a:file_path_as_string.AsString()
+
 
 	function l:object.Name()
 		return self.RH().String( fnamemodify( self._.file_path.AsVimValue(), ':p:t' ) )
