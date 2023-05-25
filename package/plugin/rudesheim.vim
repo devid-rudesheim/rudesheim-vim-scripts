@@ -68,8 +68,125 @@ function g:Rudesheim.Float( vim_value )
 	return l:object
 endfunction
 
-function g:Rudesheim.String( vim_value )
+function g:Rudesheim.Collection( vim_value )
         let l:object = self.Primitive( a:vim_value )
+
+	function! l:object.Size()
+		return self.RH().Integer( len( self.AsVimValue() ) )
+	endfunction
+
+	function! l:object.Species()
+		return self.RH().List( [] )
+	endfunction
+
+	function! l:object.Do( block )
+	endfunction
+
+	function! l:object.Select( block )
+        	let l:loop = self.RH().Object()
+        	let l:loop._.result = self.Species()
+        	let l:loop._.block = a:block
+
+		function! l:loop.Value1( each )
+			if !self._.block.Value1( a:each )
+				return 0
+			endif
+
+			call self._.result.Add( a:each )
+
+			return 0
+		endfunction
+
+		call self.Do( l:loop )
+
+		return l:loop._.result
+	endfunction
+
+	function! l:object.Detect( block )
+        	let l:loop = self.RH().Object()
+        	let l:loop._.result = self.Species()
+        	let l:loop._.block = a:block
+
+		function! l:loop.Value1( each )
+			if !self._.block.Value1( a:each )
+				return 0
+			endif
+
+			call self._.result.Add( a:each )
+
+			return 1
+		endfunction
+
+		call self.Do( l:loop )
+
+		return l:loop._.result
+	endfunction
+
+	function! l:object.Collect( block )
+        	let l:loop = self.RH().Object()
+        	let l:loop._.result = self.Species()
+        	let l:loop._.block = a:block
+
+		function! l:loop.Value1( each )
+			call self._.result.Add( self._.block.Value1( a:each ) )
+
+			return 0
+		endfunction
+
+		call self.Do( l:loop )
+
+		return l:loop._.result
+	endfunction
+
+	function! l:object.InjectInto( value, block )
+        	let l:loop = self.RH().Object()
+        	let l:loop._.result = a:value
+        	let l:loop._.block = a:block
+
+		function! l:loop.Value1( each )
+			let self._.result = self._.block.Value2( self._.result, a:each )
+
+			return 0
+		endfunction
+
+		call self.Do( l:loop )
+
+		return l:loop._.result
+	endfunction
+
+        return l:object
+endfunction
+
+function g:Rudesheim.List( vim_value )
+        let l:object = self.Collection( a:vim_value )
+
+	function! l:object.Do( block )
+		for i in self._.value
+			if a:block.Value1( i )
+				return
+			endif
+		endfor
+	endfunction
+
+	function! l:object.AddLast( value )
+		let self._.value = add( self._.value, a:value )
+
+		return self
+	endfunction
+
+	function! l:object.Add( value )
+		return self.AddLast( a:value )
+	endfunction
+
+	function! l:object.JoinWith( separator )
+		return self.RH().String( join( self._.value, a:separator ) )
+	endfunction
+
+        return l:object
+endfunction
+
+function g:Rudesheim.String( vim_value )
+        let l:object = self.Collection( a:vim_value )
 
 	function! l:object.AsVimString()
 		return self._.value
