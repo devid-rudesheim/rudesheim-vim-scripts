@@ -185,7 +185,7 @@ function g:Rudesheim.List( vim_value )
 	endfunction
 
 	function! l:object.JoinWith( separator )
-		return self.RH().String( join( self._.value, a:separator ) )
+		return self.RH().String( join( self._.value, a:separator.AsString().AsVimValue() ) )
 	endfunction
 
         return l:object
@@ -339,6 +339,12 @@ function g:Rudesheim.FileLocator()
 	function l:object.HomeDirectory()
 		return self.RH().String( $HOME ).AsFilePath()
 	endfunction
+
+	return l:object
+endfunction
+
+function g:Rudesheim.Shell()
+	let l:object = self.Object()
 
 	return l:object
 endfunction
