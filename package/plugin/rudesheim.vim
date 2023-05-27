@@ -167,6 +167,26 @@ function g:Rudesheim.Collection( vim_value )
         return l:object
 endfunction
 
+function g:Rudesheim.RHToVimString()
+        let l:object = self.Object()
+
+	function l:object.Value1( each )
+		return a:each.AsString().AsVimValue()
+	endfunction
+
+	return l:object
+endfunction
+
+function g:Rudesheim.VimToRHString()
+        let l:object = self.Object()
+
+	function l:object.Value1( each )
+		return self.RH().String( a:each )
+	endfunction
+
+	return l:object
+endfunction
+
 function g:Rudesheim.List( vim_value )
         let l:object = self.Collection( a:vim_value )
 
@@ -188,8 +208,8 @@ function g:Rudesheim.List( vim_value )
 		return self.AddLast( a:value )
 	endfunction
 
-	function! l:object.JoinWith( separator )
-		return self.RH().String( join( self._.value, a:separator.AsString().AsVimValue() ) )
+	function! l:object.JoinByString( separator )
+		return self.RH().String( join( self.Collect( self.RH().RHToVimString() ).AsVimValue(), a:separator.AsString().AsVimValue() ) )
 	endfunction
 
         return l:object
@@ -355,6 +375,24 @@ endfunction
 
 function g:Rudesheim.Shell()
 	let l:object = self.Object()
+
+	function l:object.ExecuteForString( command_name_as_string, arguments_list )
+		let l:rh = self.RH()
+		let l:escape_string = l:rh.Object()
+		let l:space = l:rh.String( " " )
+
+		function l:escape_string.Value1( each )
+			return self.RH().String( shellescape( a:each.AsString().AsVimValue() ) )
+		endfunction
+
+		return l:rh.String( system( l:rh.List( [ a:command_name_as_string.AsString(), a:arguments_list.Collect( l:escape_string ).JoinByString( l:space ) ] ).JoinByString( l:space ).AsVimValue() ) )
+	endfunction
+
+	function l:object.ExecuteForList( command_name_as_string, arguments_list )
+		let l:rh = self.RH()
+
+		return l:rh.List( split( self.ExecuteForString( a:command_name_as_string, a:arguments_list ).AsVimValue(), "\n" ) ).Collect( l:rh.VimToRHString() )
+	endfunction
 
 	return l:object
 endfunction
