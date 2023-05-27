@@ -4,6 +4,7 @@ endif
 
 let g:Rudesheim = {}
 let g:Rudesheim._ = {}
+let g:Rudesheim._.prototype = g:Rudesheim
 
 function g:Rudesheim.RH()
 	return g:Rudesheim
@@ -14,10 +15,20 @@ function g:Rudesheim.AsString()
 endfunction
 
 function g:Rudesheim.Object()
-	return deepcopy( self )
+	let l:prototype = self._.prototype
+	let l:backup = l:prototype._.prototype
+	let l:prototype._.prototype = 0
+
+	let l:copy = deepcopy( l:prototype, 1 )
+
+	let l:prototype._.prototype = l:backup
+	let l:copy._.prototype = l:prototype
+
+	return copy
 endfunction
 
 let g:Rudesheim = g:Rudesheim.Object()
+
 
 function g:Rudesheim.Primitive( vim_value )
         let l:object = self.Object()
@@ -406,11 +417,11 @@ function g:Rudesheim.Plugins()
 		let l:object = self.RH().Object()
 
 		function l:object.Edit()
-			tabe `=self._.this_plugin_file.AsString().AsVimValue()`
+			tabe `=self.RH()._.this_plugin_file.AsString().AsVimValue()`
 		endfunction
 
 		function l:object.Reload()
-			source `=self._.this_plugin_file.AsString().AsVimValue()`
+			source `=self.RH()._.this_plugin_file.AsString().AsVimValue()`
 		endfunction
 
 		return l:object
