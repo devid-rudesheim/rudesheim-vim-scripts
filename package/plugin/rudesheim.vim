@@ -223,6 +223,10 @@ function g:Rudesheim.List( vim_value )
 		return self.RH().String( join( self.Collect( self.RH().RHToVimString() ).AsVimValue(), a:separator.AsString().AsVimValue() ) )
 	endfunction
 
+	function! l:object.AsString()
+		return self.JoinByString( self.RH().String( "\n" ) )
+	endfunction
+
         return l:object
 endfunction
 
