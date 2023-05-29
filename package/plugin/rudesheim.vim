@@ -227,6 +227,10 @@ function g:Rudesheim.List( vim_value )
 		return self.JoinByString( self.RH().String( "\n" ) )
 	endfunction
 
+	function! l:object.AsList()
+		return self
+	endfunction
+
         return l:object
 endfunction
 
@@ -269,6 +273,20 @@ endfunction
 
 let g:Rudesheim.S = g:Rudesheim.String
 
+
+function g:Rudesheim.Empty()
+        let l:object = self.Object()
+
+	function! l:object.AsList()
+		return self.RH().List( [] )
+	endfunction
+
+	function! l:object.AsString()
+		return self.RH().String( "" )
+	endfunction
+
+	return l:object
+endfunction
 
 function g:Rudesheim.Zero()
 	return self.Integer( 0 )
@@ -354,7 +372,11 @@ function g:Rudesheim.This()
 			endfunction
 
 			function! l:object.Set( value_as_string )
-				return self.RH().String( setline( self._.vim_row, a:value_as_string.AsString().AsVimValue() ) )
+				call setline( self._.vim_row, a:value_as_string.AsString().AsVimValue() )
+			endfunction
+
+			function! l:object.NextPutAll( value_as_string )
+				call append( self._.vim_row, a:value_as_string.AsString().AsVimValue() )
 			endfunction
 
 			return l:object
